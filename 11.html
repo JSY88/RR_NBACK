@@ -1,0 +1,1594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relational Integration Training</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 50%, #2980b9 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ecf0f1;
+        }
+
+        .container {
+            background: rgba(44, 62, 80, 0.85);
+            backdrop-filter: blur(5px);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 800px;
+            width: 90%;
+            border: 1px solid rgba(236, 240, 241, 0.1);
+        }
+
+        .training-time-display {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(52, 73, 94, 0.9);
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 2px solid rgba(149, 165, 166, 0.3);
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #3498db;
+            z-index: 1001;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            color: #ecf0f1;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .game-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .info-card {
+            background: rgba(52, 73, 94, 0.6);
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(149, 165, 166, 0.2);
+        }
+
+        .info-card h3 {
+            font-size: 0.8em;
+            margin-bottom: 5px;
+            opacity: 0.8;
+        }
+
+        .info-card .value {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .number-display {
+            background: rgba(52, 73, 94, 0.8);
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            font-weight: bold;
+            margin: 30px auto;
+            transition: all 0.3s ease;
+            border: 3px solid #3498db;
+            box-shadow: 0 0 20px rgba(52, 152, 219, 0.3);
+            color: #ecf0f1;
+        }
+
+        .number-display.fade-out {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: rgba(44, 62, 80, 0.95);
+            backdrop-filter: blur(10px);
+            border-left: 2px solid rgba(149, 165, 166, 0.3);
+            padding: 20px;
+            overflow-y: auto;
+            transition: right 0.3s ease;
+            z-index: 1000;
+            color: #ecf0f1;
+        }
+
+        .sidebar.open {
+            right: 0;
+        }
+
+        .sidebar-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(52, 152, 219, 0.3);
+        }
+
+        .sidebar h2 {
+            margin-bottom: 10px;
+            color: #3498db;
+        }
+
+        .sidebar-training-time {
+            background: rgba(52, 152, 219, 0.2);
+            padding: 8px 12px;
+            border-radius: 8px;
+            color: #3498db;
+            font-weight: bold;
+            font-size: 0.9em;
+            border: 1px solid rgba(52, 152, 219, 0.3);
+        }
+
+        .setting-group {
+            background: rgba(52, 73, 94, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(149, 165, 166, 0.2);
+        }
+
+        .setting-group h3 {
+            margin-bottom: 15px;
+            color: #ecf0f1;
+            font-size: 1.1em;
+        }
+
+        .setting-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .setting-input {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(44, 62, 80, 0.8);
+            color: #ecf0f1;
+            width: 80px;
+            text-align: center;
+            border: 1px solid rgba(149, 165, 166, 0.3);
+        }
+
+        .setting-select {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(44, 62, 80, 0.8);
+            color: #ecf0f1;
+            border: 1px solid rgba(149, 165, 166, 0.3);
+            cursor: pointer;
+        }
+
+        .setting-button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            background: #3498db;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .setting-button:hover {
+            background: #2980b9;
+        }
+
+        .setting-button.active {
+            background: #27ae60;
+        }
+
+        .keymap-setting {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .keymap-button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(44, 62, 80, 0.8);
+            color: #ecf0f1;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 80px;
+            border: 1px solid rgba(149, 165, 166, 0.3);
+        }
+
+        .keymap-button.recording {
+            background: #e74c3c;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .keymap-description {
+            font-size: 0.8em;
+            color: rgba(236, 240, 241, 0.7);
+            margin-top: 10px;
+            padding: 8px;
+            background: rgba(44, 62, 80, 0.6);
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .settings-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(52, 73, 94, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            color: #ecf0f1;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+            z-index: 1001;
+            border: 2px solid rgba(149, 165, 166, 0.3);
+        }
+
+        .settings-toggle:hover {
+            background: rgba(52, 73, 94, 1);
+            transform: scale(1.1);
+        }
+
+        .range-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 999;
+        }
+
+        .sidebar-overlay.show {
+            display: block;
+        }
+
+        .mode-description {
+            font-size: 0.85em;
+            margin-top: 10px;
+            padding: 8px;
+            background: rgba(44, 62, 80, 0.8);
+            border-radius: 6px;
+            color: rgba(236, 240, 241, 0.8);
+            text-align: center;
+        }
+
+        .setting-status {
+            font-size: 0.8em;
+            margin-top: 8px;
+            padding: 6px;
+            background: rgba(44, 62, 80, 0.6);
+            border-radius: 4px;
+            color: rgba(236, 240, 241, 0.7);
+        }
+
+        .adaptive-status {
+            font-size: 0.9em;
+            margin-top: 8px;
+            padding: 8px;
+            background: rgba(52, 152, 219, 0.2);
+            border-radius: 6px;
+            color: #3498db;
+            border: 1px solid rgba(52, 152, 219, 0.3);
+        }
+
+        .setting-group.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .setting-group.disabled h3::after {
+            content: " (Auto)";
+            font-size: 0.8em;
+            color: #f39c12;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-yes {
+            background: #27ae60;
+            color: white;
+            border: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .btn-yes:hover {
+            background: #27ae60;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-yes.feedback-correct {
+            border-color: #27ae60;
+            box-shadow: 0 0 30px rgba(39, 174, 96, 1);
+            background: #2ecc71;
+        }
+
+        .btn-no {
+            background: #e74c3c;
+            color: white;
+            border: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .btn-no:hover {
+            background: #e74c3c;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-no.feedback-correct {
+            border-color: #e74c3c;
+            box-shadow: 0 0 30px rgba(231, 76, 60, 1);
+            background: #c0392b;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .controls {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 10px 20px;
+            background: rgba(52, 73, 94, 0.6);
+            border: none;
+            border-radius: 25px;
+            color: #ecf0f1;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(149, 165, 166, 0.2);
+        }
+
+        .control-btn:hover {
+            background: rgba(52, 73, 94, 0.8);
+            transform: translateY(-1px);
+        }
+
+        .start-screen {
+            text-align: center;
+        }
+
+        .start-btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            font-size: 1.3em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(52, 152, 219, 0.3);
+        }
+
+        .timer-input {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-align: center;
+            width: 80px;
+        }
+
+        .timer-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(52, 73, 94, 0.6);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2980b9);
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .explanation {
+            background: rgba(52, 73, 94, 0.6);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: left;
+            line-height: 1.6;
+            border: 1px solid rgba(149, 165, 166, 0.2);
+        }
+
+        .history-section {
+            background: rgba(52, 73, 94, 0.6);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid rgba(149, 165, 166, 0.2);
+        }
+
+        .history-item {
+            background: rgba(44, 62, 80, 0.6);
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 0.9em;
+            text-align: left;
+        }
+
+        .history-item.correct {
+            border-left: 4px solid #27ae60;
+        }
+
+        .history-item.incorrect {
+            border-left: 4px solid #e74c3c;
+        }
+
+        .results-screen {
+            text-align: center;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+        }
+
+        .result-card h3 {
+            font-size: 1em;
+            margin-bottom: 10px;
+            opacity: 0.8;
+        }
+
+        .result-card .big-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4ecdc4;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .number-display {
+                width: 100px;
+                height: 100px;
+                font-size: 2.5em;
+            }
+            
+            .buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .sidebar {
+                width: 100%;
+                right: -100%;
+            }
+
+            .training-time-display {
+                font-size: 0.9em;
+                padding: 8px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="training-time-display" id="trainingTimeDisplay">
+        📊 Today: 0:00
+    </div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+    
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>⚙️ Settings</h2>
+            <div class="sidebar-training-time" id="sidebarTrainingTime">
+                📊 Today's Training: 0:00
+            </div>
+        </div>
+        
+        <div class="setting-group">
+            <h3>🎮 Hotkeys</h3>
+            <div class="keymap-setting">
+                <span>Equal (Yes):</span>
+                <button class="keymap-button" id="equalKeyBtn" onclick="recordKey('equal')">Y</button>
+            </div>
+            <div class="keymap-setting">
+                <span>Different (No):</span>
+                <button class="keymap-button" id="differentKeyBtn" onclick="recordKey('different')">N</button>
+            </div>
+            <div class="keymap-setting">
+                <span>Start Training:</span>
+                <button class="keymap-button" id="startKeyBtn" onclick="recordKey('start')">Space</button>
+            </div>
+            <div class="keymap-description">
+                Click a button and press the key you want to assign
+            </div>
+        </div>
+
+        <div class="setting-group">
+            <h3>⏱️ Auto Start</h3>
+            <div class="setting-row">
+                <span>Auto Start:</span>
+                <button class="setting-button" id="autoStartBtn" onclick="toggleAutoStart()">Disabled</button>
+            </div>
+            <div class="setting-row">
+                <span>Delay:</span>
+                <input type="number" class="setting-input" id="autoStartDelay" value="3" min="1" max="10" step="1" onchange="updateAutoStartDelay()">
+                <span>sec</span>
+            </div>
+            <div class="mode-description">
+                Automatically start training after entering the game screen
+            </div>
+        </div>
+
+        <div class="setting-group">
+            <h3>Training Mode</h3>
+            <div class="range-buttons">
+                <button class="setting-button active" id="adaptiveBtn" onclick="setMode('adaptive')">Adaptive</button>
+                <button class="setting-button" id="manualBtn" onclick="setMode('manual')">Manual</button>
+            </div>
+            <div id="modeDescription" class="mode-description">
+                Difficulty adjusts automatically based on performance
+            </div>
+        </div>
+
+        <div class="setting-group">
+            <h3>N-Back Level</h3>
+            <div class="range-buttons">
+                <button class="setting-button active" id="level1Btn" onclick="setLevel(1)">1-Back</button>
+                <button class="setting-button" id="level2Btn" onclick="setLevel(2)">2-Back</button>
+                <button class="setting-button" id="level3Btn" onclick="setLevel(3)">3-Back</button>
+                <button class="setting-button" id="level4Btn" onclick="setLevel(4)">4-Back</button>
+                <button class="setting-button" id="level5Btn" onclick="setLevel(5)">5-Back</button>
+            </div>
+            <div class="mode-description">
+                Higher levels require remembering more numbers back
+            </div>
+        </div>
+
+        <div class="setting-group" id="rangeGroup">
+            <h3>Number Range</h3>
+            <div class="range-buttons">
+                <button class="setting-button active" id="range1Btn" onclick="setRange([1,9])">1-9</button>
+                <button class="setting-button" id="range2Btn" onclick="setRange([1,19])">1-19</button>
+                <button class="setting-button" id="range3Btn" onclick="setRange([1,29])">1-29</button>
+                <button class="setting-button" id="range4Btn" onclick="setRange([1,39])">1-39</button>
+                <button class="setting-button" id="range5Btn" onclick="setRange([1,49])">1-49</button>
+                <button class="setting-button" id="range6Btn" onclick="setRange([1,59])">1-59</button>
+                <button class="setting-button" id="range7Btn" onclick="setRange([1,69])">1-69</button>
+                <button class="setting-button" id="range8Btn" onclick="setRange([1,79])">1-79</button>
+                <button class="setting-button" id="range9Btn" onclick="setRange([1,89])">1-89</button>
+                <button class="setting-button" id="range10Btn" onclick="setRange([1,99])">1-99</button>
+            </div>
+            <div id="rangeStatus" class="setting-status"></div>
+        </div>
+
+        <div class="setting-group">
+            <h3>Stimulus Display</h3>
+            <div class="setting-row">
+                <span>Duration:</span>
+                <input type="number" class="setting-input" id="stimulusDuration" value="1.5" min="0.5" max="5" step="0.1" onchange="updateStimulusDuration()">
+                <span>sec</span>
+            </div>
+            <div class="setting-row">
+                <span>Gap:</span>
+                <input type="number" class="setting-input" id="gapDuration" value="2.5" min="1" max="10" step="0.5" onchange="updateGapDuration()">
+                <span>sec</span>
+            </div>
+        </div>
+
+        <div class="setting-group">
+            <h3>Current Game</h3>
+            <div id="gameStatus">Not Started</div>
+            <div id="adaptiveStatus" class="adaptive-status"></div>
+            <button class="setting-button" onclick="resetGame()" style="margin-top: 10px; width: 100%;">Reset Game</button>
+        </div>
+    </div>
+
+    <button class="settings-toggle" id="settingsToggle" onclick="toggleSidebar()">⚙️</button>
+
+    <div class="container">
+        <div id="startScreen" class="start-screen">
+            <h1>🧠 Relational Integration Training</h1>
+            <p class="subtitle">Challenge your brain with this engaging number sequence game!</p>
+            
+            <div class="explanation">
+                <h3>🎯 The Challenge</h3>
+                <p>Watch a sequence of numbers appear one at a time. Your task is to compare the differences between numbers!</p>
+                
+                <h3 style="margin-top: 30px;">🎮 How to Play</h3>
+                <div style="margin: 15px 0; padding: 15px; background: rgba(52, 73, 94, 0.4); border-radius: 10px;">
+                    <p><strong>1-Back Level:</strong></p>
+                    <p>Compare: (current - previous) vs (previous - two before)</p>
+                    <p><em>Equal Example: [5, 3, 1] → (1-3) vs (3-5) → Both = 2 ✓</em></p>
+                    <p><em>Different Example: [5, 3, 2] → (2-3) vs (3-5) → 1 vs 2 ✗</em></p>
+                    
+                    <p style="margin-top: 15px;"><strong>2-Back Level:</strong></p>
+                    <p>Compare: (current - two before) vs (previous - three before)</p>
+                    <p><em>Equal Example: [2, 5, 8, 11] → (11-5) vs (8-2) → Both = 6 ✓</em></p>
+                    <p><em>Different Example: [2, 5, 8, 10] → (10-5) vs (8-2) → 5 vs 6 ✗</em></p>
+
+                    <p style="margin-top: 15px;"><strong>How to Respond:</strong></p>
+                    <p>✓ Press "Equal" if the differences match</p>
+                    <p>✓ Press "Different" if the differences don't match</p>
+                    <p>✓ Numbers appear one at a time - remember them!</p>
+                </div>
+
+                <h3>⌨️ Controls</h3>
+                <p><strong>Default:</strong> Space: Start | Y: Equal | N: Different | Escape: Close settings | Ctrl+S: Open settings</p>
+                <p><em>Use the ⚙️ button to customize hotkeys and training settings!</em></p>
+            </div>
+
+            <button class="start-btn" onclick="startGame()">Start Training</button>
+        </div>
+
+        <div id="gameScreen" style="display: none;">
+            <h1>🧠 Relational Integration Training</h1>
+            
+            <div class="game-info">
+                <div class="info-card">
+                    <h3>Level</h3>
+                    <div class="value" id="currentLevel">1-Back</div>
+                </div>
+                <div class="info-card">
+                    <h3>Trial</h3>
+                    <div class="value" id="currentTrial">0/30</div>
+                </div>
+                <div class="info-card">
+                    <h3>Range</h3>
+                    <div class="value" id="numberRange">1-9</div>
+                </div>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <div class="number-display" id="numberDisplay">
+                ?
+            </div>
+
+            <div id="autoStartDisplay" class="instruction" style="display: none;">
+                <span>Auto starting in <span id="countdownText">3</span> seconds...</span>
+                <div style="margin-top: 10px; font-size: 0.8em; opacity: 0.7;">
+                    Press <span id="cancelKeyText">Space</span> to start now or any other key to cancel
+                </div>
+            </div>
+
+            <div class="buttons">
+                <button class="btn btn-yes" id="yesBtn" onclick="respond(true)">
+                    ✓ Equal
+                </button>
+                <button class="btn btn-no" id="noBtn" onclick="respond(false)">
+                    ✗ Different
+                </button>
+            </div>
+
+            <div class="controls">
+                <button class="control-btn" onclick="endGame()">🏠 Menu</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Memory storage for settings (replaces localStorage)
+        const memoryStorage = {
+            data: {},
+            setItem: function(key, value) {
+                this.data[key] = value;
+            },
+            getItem: function(key) {
+                return this.data[key] || null;
+            },
+            removeItem: function(key) {
+                delete this.data[key];
+            }
+        };
+
+        // Game state
+        let gameState = {
+            level: 1,
+            numbersShown: 0,
+            totalNumbers: 30,
+            numberRange: [1, 9],
+            sequence: [],
+            correctAnswers: 0,
+            totalAnswers: 0,
+            isPlaying: false,
+            isPaused: false,
+            currentAnswer: null,
+            sequenceStep: 0,
+            isQuestionPhase: false,
+            stimulusDuration: 1.5,
+            gapDuration: 2.5,
+            mode: 'adaptive',
+            blockCorrectAnswers: 0,
+            blockTotalAnswers: 0,
+            adaptiveChanges: [],
+            currentTimeout: null,
+            hasAnswered: false,
+            // Training time tracking
+            sessionStartTime: null,
+            totalTrainingTime: 0, // in seconds
+            dailyTrainingTime: 0, // in seconds
+            lastTrainingDate: null,
+            // Hotkey settings
+            hotkeys: {
+                equal: 'KeyY',
+                different: 'KeyN',
+                start: 'Space'
+            },
+            recordingKey: null,
+            // Auto start settings
+            autoStartEnabled: false,
+            autoStartDelay: 3, // seconds
+            autoStartTimeout: null,
+            autoStartCountdown: null
+        };
+
+        // Initialize the game
+        function initGame() {
+            // Load saved settings
+            loadSettings();
+            updateSidebarDisplay();
+            updateTrainingTimeDisplay();
+            
+            // Initialize training time tracking
+            const today = new Date().toDateString();
+            if (gameState.lastTrainingDate !== today) {
+                gameState.dailyTrainingTime = 0;
+                gameState.lastTrainingDate = today;
+                saveSettings();
+            }
+        }
+
+        function loadSettings() {
+            const savedSettings = memoryStorage.getItem('gameSettings');
+            if (savedSettings) {
+                const settings = JSON.parse(savedSettings);
+                gameState.stimulusDuration = settings.stimulusDuration || 1.5;
+                gameState.gapDuration = settings.gapDuration || 2.5;
+                gameState.mode = settings.mode || 'adaptive';
+                gameState.level = settings.level || 1;
+                gameState.dailyTrainingTime = settings.dailyTrainingTime || 0;
+                gameState.lastTrainingDate = settings.lastTrainingDate || new Date().toDateString();
+                gameState.autoStartEnabled = settings.autoStartEnabled || false;
+                gameState.autoStartDelay = settings.autoStartDelay || 3;
+                
+                if (settings.numberRange) {
+                    gameState.numberRange = settings.numberRange;
+                }
+                if (settings.hotkeys) {
+                    gameState.hotkeys = { ...gameState.hotkeys, ...settings.hotkeys };
+                }
+            }
+        }
+
+        function saveSettings() {
+            const settings = {
+                stimulusDuration: gameState.stimulusDuration,
+                gapDuration: gameState.gapDuration,
+                mode: gameState.mode,
+                level: gameState.level,
+                numberRange: gameState.numberRange,
+                hotkeys: gameState.hotkeys,
+                dailyTrainingTime: gameState.dailyTrainingTime,
+                lastTrainingDate: gameState.lastTrainingDate,
+                autoStartEnabled: gameState.autoStartEnabled,
+                autoStartDelay: gameState.autoStartDelay
+            };
+            memoryStorage.setItem('gameSettings', JSON.stringify(settings));
+        }
+
+        function updateTrainingTimeDisplay() {
+            const formatTime = (seconds) => {
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                return `${mins}:${secs.toString().padStart(2, '0')}`;
+            };
+
+            const timeDisplay = document.getElementById('trainingTimeDisplay');
+            const sidebarTimeDisplay = document.getElementById('sidebarTrainingTime');
+            const formattedTime = formatTime(gameState.dailyTrainingTime);
+            
+            if (timeDisplay) timeDisplay.textContent = `📊 Today: ${formattedTime}`;
+            if (sidebarTimeDisplay) sidebarTimeDisplay.textContent = `📊 Today's Training: ${formattedTime}`;
+        }
+
+        function startTrainingTimer() {
+            gameState.sessionStartTime = Date.now();
+        }
+
+        function stopTrainingTimer() {
+            if (gameState.sessionStartTime) {
+                const sessionDuration = Math.floor((Date.now() - gameState.sessionStartTime) / 1000);
+                gameState.dailyTrainingTime += sessionDuration;
+                gameState.sessionStartTime = null;
+                updateTrainingTimeDisplay();
+                saveSettings();
+            }
+        }
+
+        // Hotkey management
+        function recordKey(action) {
+            const button = document.getElementById(`${action}KeyBtn`);
+            if (gameState.recordingKey) return; // Prevent multiple recordings
+            
+            gameState.recordingKey = action;
+            button.classList.add('recording');
+            button.textContent = 'Press key...';
+            
+            // Remove existing listeners
+            document.removeEventListener('keydown', handleKeyRecord);
+            document.addEventListener('keydown', handleKeyRecord);
+        }
+
+        function handleKeyRecord(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            if (!gameState.recordingKey) return;
+            
+            const action = gameState.recordingKey;
+            const keyCode = e.code;
+            
+            // Update hotkey
+            gameState.hotkeys[action] = keyCode;
+            
+            // Update button display
+            const button = document.getElementById(`${action}KeyBtn`);
+            button.classList.remove('recording');
+            button.textContent = getKeyDisplayName(keyCode);
+            
+            // Reset recording state
+            gameState.recordingKey = null;
+            document.removeEventListener('keydown', handleKeyRecord);
+            
+            saveSettings();
+        }
+
+        function getKeyDisplayName(keyCode) {
+            const keyMap = {
+                'Space': 'Space',
+                'KeyY': 'Y',
+                'KeyN': 'N',
+                'KeyJ': 'J',
+                'KeyF': 'F',
+                'KeyZ': 'Z',
+                'KeyX': 'X',
+                'ArrowLeft': '←',
+                'ArrowRight': '→',
+                'Enter': 'Enter',
+                'KeyA': 'A',
+                'KeyS': 'S',
+                'KeyD': 'D',
+                'KeyW': 'W',
+                'Digit1': '1',
+                'Digit2': '2',
+                'Digit3': '3',
+                'Digit4': '4',
+                'Digit5': '5'
+            };
+            
+            return keyMap[keyCode] || keyCode.replace('Key', '').replace('Digit', '');
+        }
+
+        // Sidebar functions
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            if (sidebar.classList.contains('open')) {
+                closeSidebar();
+            } else {
+                if (gameState.isPlaying) {
+                    pauseGame();
+                }
+                sidebar.classList.add('open');
+                overlay.classList.add('show');
+                updateSidebarDisplay();
+            }
+        }
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('sidebarOverlay').classList.remove('show');
+            
+            if (gameState.isPlaying) {
+                resumeGame();
+            }
+        }
+
+        function pauseGame() {
+            gameState.isPaused = true;
+            
+            if (gameState.currentTimeout) {
+                clearTimeout(gameState.currentTimeout);
+                gameState.currentTimeout = null;
+            }
+            
+            stopTrainingTimer();
+        }
+
+        function resumeGame() {
+            if (gameState.isPaused) {
+                gameState.isPaused = false;
+                startTrainingTimer();
+                showNextNumber();
+            }
+        }
+
+        function updateSidebarDisplay() {
+            // Update mode buttons
+            document.querySelectorAll('.setting-button[id*="Btn"]').forEach(btn => {
+                if (btn.id.includes('adaptive') || btn.id.includes('manual')) {
+                    btn.classList.remove('active');
+                }
+            });
+            document.getElementById(`${gameState.mode}Btn`).classList.add('active');
+            
+            // Update hotkey buttons
+            document.getElementById('equalKeyBtn').textContent = getKeyDisplayName(gameState.hotkeys.equal);
+            document.getElementById('differentKeyBtn').textContent = getKeyDisplayName(gameState.hotkeys.different);
+            document.getElementById('startKeyBtn').textContent = getKeyDisplayName(gameState.hotkeys.start);
+            
+            // Update auto start settings
+            const autoStartBtn = document.getElementById('autoStartBtn');
+            if (autoStartBtn) {
+                autoStartBtn.textContent = gameState.autoStartEnabled ? 'Enabled' : 'Disabled';
+                autoStartBtn.classList.toggle('active', gameState.autoStartEnabled);
+            }
+            document.getElementById('autoStartDelay').value = gameState.autoStartDelay;
+            
+            // Update mode description
+            const modeDescription = document.getElementById('modeDescription');
+            const rangeGroup = document.getElementById('rangeGroup');
+            const rangeStatus = document.getElementById('rangeStatus');
+            
+            if (gameState.mode === 'adaptive') {
+                modeDescription.textContent = 'Difficulty adjusts automatically based on performance';
+                rangeGroup.classList.add('disabled');
+                rangeStatus.textContent = 'Range will adjust based on your accuracy (>80% = harder, <50% = easier)';
+            } else {
+                modeDescription.textContent = 'Full manual control over all settings';
+                rangeGroup.classList.remove('disabled');
+                rangeStatus.textContent = 'Manually control difficulty level';
+            }
+            
+            // Update level buttons
+            document.querySelectorAll('.setting-button[id*="level"]').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`level${gameState.level}Btn`).classList.add('active');
+            
+            // Update range buttons
+            if (gameState.mode === 'manual') {
+                document.querySelectorAll('.setting-button[id*="range"]').forEach(btn => btn.classList.remove('active'));
+                const rangeButtons = [
+                    [9, 'range1Btn'], [19, 'range2Btn'], [29, 'range3Btn'], [39, 'range4Btn'], [49, 'range5Btn'],
+                    [59, 'range6Btn'], [69, 'range7Btn'], [79, 'range8Btn'], [89, 'range9Btn'], [99, 'range10Btn']
+                ];
+                
+                for (const [range, btnId] of rangeButtons) {
+                    if (gameState.numberRange[1] === range) {
+                        document.getElementById(btnId).classList.add('active');
+                        break;
+                    }
+                }
+            }
+            
+            // Update input values
+            document.getElementById('stimulusDuration').value = gameState.stimulusDuration;
+            document.getElementById('gapDuration').value = gameState.gapDuration;
+            
+            // Update game status
+            let status;
+            if (gameState.isPlaying && gameState.isPaused) {
+                status = `Paused: Trial ${gameState.numbersShown}/${gameState.totalNumbers}`;
+            } else if (gameState.isPlaying) {
+                status = `Playing: Trial ${gameState.numbersShown}/${gameState.totalNumbers}`;
+            } else {
+                const gameScreen = document.getElementById('gameScreen');
+                if (gameScreen && gameScreen.style.display !== 'none') {
+                    status = 'Ready to Start';
+                } else {
+                    status = 'Not Started';
+                }
+            }
+            const gameStatusEl = document.getElementById('gameStatus');
+            if (gameStatusEl) gameStatusEl.textContent = status;
+            
+            // Update adaptive status
+            const adaptiveStatus = document.getElementById('adaptiveStatus');
+            if (adaptiveStatus) {
+                if (gameState.mode === 'adaptive' && gameState.isPlaying) {
+                    const blockAccuracy = gameState.blockTotalAnswers > 0 ? 
+                        Math.round((gameState.blockCorrectAnswers / gameState.blockTotalAnswers) * 100) : 0;
+                    adaptiveStatus.textContent = `Block Accuracy: ${blockAccuracy}% | Range: ${gameState.numberRange[0]}-${gameState.numberRange[1]}`;
+                    adaptiveStatus.style.display = 'block';
+                } else if (gameState.mode === 'adaptive') {
+                    adaptiveStatus.textContent = 'Adaptive mode active - difficulty will adjust automatically';
+                    adaptiveStatus.style.display = 'block';
+                } else {
+                    adaptiveStatus.style.display = 'none';
+                }
+            }
+            
+            updateTrainingTimeDisplay();
+        }
+
+        // Auto start functions
+        function toggleAutoStart() {
+            gameState.autoStartEnabled = !gameState.autoStartEnabled;
+            updateSidebarDisplay();
+            saveSettings();
+        }
+
+        function updateAutoStartDelay() {
+            const newDelay = parseInt(document.getElementById('autoStartDelay').value) || 3;
+            gameState.autoStartDelay = Math.max(1, Math.min(10, newDelay));
+            document.getElementById('autoStartDelay').value = gameState.autoStartDelay;
+            saveSettings();
+        }
+
+        function startAutoStartCountdown() {
+            // Clear any existing auto start timers
+            clearAutoStartTimers();
+            
+            if (!gameState.autoStartEnabled || gameState.isPlaying) {
+                return;
+            }
+            
+            const autoStartDisplay = document.getElementById('autoStartDisplay');
+            const countdownText = document.getElementById('countdownText');
+            const cancelKeyText = document.getElementById('cancelKeyText');
+            
+            // Show auto start display
+            autoStartDisplay.style.display = 'block';
+            cancelKeyText.textContent = getKeyDisplayName(gameState.hotkeys.start);
+            
+            let remainingTime = gameState.autoStartDelay;
+            countdownText.textContent = remainingTime;
+            
+            gameState.autoStartCountdown = setInterval(() => {
+                remainingTime--;
+                countdownText.textContent = remainingTime;
+                
+                if (remainingTime <= 0) {
+                    clearAutoStartTimers();
+                    autoStartDisplay.style.display = 'none';
+                    startSequence();
+                }
+            }, 1000);
+        }
+
+        function clearAutoStartTimers() {
+            if (gameState.autoStartTimeout) {
+                clearTimeout(gameState.autoStartTimeout);
+                gameState.autoStartTimeout = null;
+            }
+            
+            if (gameState.autoStartCountdown) {
+                clearInterval(gameState.autoStartCountdown);
+                gameState.autoStartCountdown = null;
+            }
+        }
+
+        function cancelAutoStart() {
+            clearAutoStartTimers();
+            const autoStartDisplay = document.getElementById('autoStartDisplay');
+            autoStartDisplay.style.display = 'none';
+        }
+
+        function setMode(mode) {
+            gameState.mode = mode;
+            if (mode === 'adaptive') {
+                gameState.numberRange = [1, 9];
+                gameState.adaptiveChanges = [];
+            }
+            updateSidebarDisplay();
+            updateDisplay();
+            saveSettings();
+        }
+
+        function setLevel(level) {
+            gameState.level = level;
+            updateSidebarDisplay();
+            updateDisplay();
+            saveSettings();
+        }
+
+        function setRange(range) {
+            if (gameState.mode === 'manual') {
+                gameState.numberRange = range;
+                updateSidebarDisplay();
+                updateDisplay();
+                saveSettings();
+            }
+        }
+
+        function checkAdaptiveDifficulty() {
+            if (gameState.mode !== 'adaptive' || gameState.blockTotalAnswers === 0) {
+                return;
+            }
+            
+            const blockAccuracy = gameState.blockCorrectAnswers / gameState.blockTotalAnswers;
+            let difficultyChanged = false;
+            
+            if (blockAccuracy > 0.8 && gameState.numberRange[1] < 99) {
+                const ranges = [[1,9], [1,19], [1,29], [1,39], [1,49], [1,59], [1,69], [1,79], [1,89], [1,99]];
+                const currentIndex = ranges.findIndex(r => r[1] === gameState.numberRange[1]);
+                if (currentIndex < ranges.length - 1) {
+                    gameState.numberRange = ranges[currentIndex + 1];
+                    difficultyChanged = true;
+                }
+            } else if (blockAccuracy < 0.5 && gameState.numberRange[1] > 9) {
+                const ranges = [[1,9], [1,19], [1,29], [1,39], [1,49], [1,59], [1,69], [1,79], [1,89], [1,99]];
+                const currentIndex = ranges.findIndex(r => r[1] === gameState.numberRange[1]);
+                if (currentIndex > 0) {
+                    gameState.numberRange = ranges[currentIndex - 1];
+                    difficultyChanged = true;
+                }
+            }
+            
+            if (difficultyChanged) {
+                gameState.blockCorrectAnswers = 0;
+                gameState.blockTotalAnswers = 0;
+            }
+        }
+
+        function updateGapDuration() {
+            const newDuration = parseFloat(document.getElementById('gapDuration').value) || 2.5;
+            gameState.gapDuration = newDuration;
+            saveSettings();
+        }
+
+        function updateStimulusDuration() {
+            const newDuration = parseFloat(document.getElementById('stimulusDuration').value) || 1.5;
+            gameState.stimulusDuration = newDuration;
+            saveSettings();
+        }
+
+        function resetGame() {
+            stopTrainingTimer();
+            clearAutoStartTimers();
+            
+            gameState.isPlaying = false;
+            gameState.isPaused = false;
+            gameState.numbersShown = 0;
+            gameState.correctAnswers = 0;
+            gameState.totalAnswers = 0;
+            gameState.blockCorrectAnswers = 0;
+            gameState.blockTotalAnswers = 0;
+            gameState.sequence = [];
+            gameState.sequenceStep = 0;
+            gameState.isQuestionPhase = false;
+            gameState.adaptiveChanges = [];
+            
+            if (gameState.currentTimeout) {
+                clearTimeout(gameState.currentTimeout);
+                gameState.currentTimeout = null;
+            }
+            
+            const numberDisplay = document.getElementById('numberDisplay');
+            const autoStartDisplay = document.getElementById('autoStartDisplay');
+            
+            numberDisplay.textContent = '?';
+            numberDisplay.classList.remove('fade-out');
+            numberDisplay.style.display = 'flex';
+            
+            if (autoStartDisplay) {
+                autoStartDisplay.style.display = 'none';
+            }
+            
+            document.getElementById('yesBtn').style.display = 'block';
+            document.getElementById('noBtn').style.display = 'block';
+            
+            // Remove feedback highlights
+            document.getElementById('yesBtn').classList.remove('feedback-correct');
+            document.getElementById('noBtn').classList.remove('feedback-correct');
+            
+            updateDisplay();
+            updateSidebarDisplay();
+        }
+
+        function startGame() {
+            const startScreen = document.getElementById('startScreen');
+            const gameScreen = document.getElementById('gameScreen');
+            
+            if (startScreen) startScreen.style.display = 'none';
+            if (gameScreen) gameScreen.style.display = 'block';
+            
+            // Clear any existing timers
+            clearAutoStartTimers();
+            
+            gameState.isPlaying = false;
+            gameState.isPaused = false;
+            gameState.numbersShown = 0;
+            gameState.correctAnswers = 0;
+            gameState.totalAnswers = 0;
+            gameState.blockCorrectAnswers = 0;
+            gameState.blockTotalAnswers = 0;
+            gameState.sequence = [];
+            gameState.sequenceStep = 0;
+            gameState.isQuestionPhase = false;
+            gameState.adaptiveChanges = [];
+            
+            if (gameState.mode === 'adaptive') {
+                gameState.numberRange = [1, 9];
+            }
+            
+            updateDisplay();
+            updateSidebarDisplay();
+            
+            // Start auto start countdown if enabled
+            if (gameState.autoStartEnabled) {
+                startAutoStartCountdown();
+            }
+        }
+
+        function startSequence() {
+            // Clear auto start timers when sequence starts
+            clearAutoStartTimers();
+            const autoStartDisplay = document.getElementById('autoStartDisplay');
+            if (autoStartDisplay) {
+                autoStartDisplay.style.display = 'none';
+            }
+            
+            gameState.isPlaying = true;
+            gameState.isQuestionPhase = true;
+            startTrainingTimer();
+            
+            gameState.sequence = generateSequenceWithEqualDifferences();
+            gameState.sequenceStep = 0;
+            
+            const remainingLength = 30 - gameState.sequence.length;
+            for (let i = 0; i < remainingLength; i++) {
+                gameState.sequence.push(generateRandomNumber());
+            }
+            
+            showNextNumber();
+        }
+
+        function updateDisplay() {
+            document.getElementById('currentLevel').textContent = `${gameState.level}-Back`;
+            document.getElementById('currentTrial').textContent = `${gameState.numbersShown}/${gameState.totalNumbers}`;
+            document.getElementById('numberRange').textContent = 
+                `${gameState.numberRange[0]}-${gameState.numberRange[1]}`;
+            
+            const progress = (gameState.numbersShown / gameState.totalNumbers) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+        }
+
+        function generateRandomNumber() {
+            const min = gameState.numberRange[0];
+            const max = gameState.numberRange[1];
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function generateSequenceWithEqualDifferences() {
+            const sequence = [];
+            
+            for (let i = 0; i < gameState.level + 1; i++) {
+                sequence.push(generateRandomNumber());
+            }
+            
+            const remainingLength = 30 - sequence.length;
+            for (let i = 0; i < remainingLength; i++) {
+                if (Math.random() < 0.5) {
+                    const current = sequence[sequence.length - 1];
+                    const nBack = sequence[sequence.length - gameState.level - 1];
+                    const previous = sequence[sequence.length - 2];
+                    
+                    const diff = Math.abs(current - nBack);
+                    const possibleNext = [previous + diff, previous - diff].filter(n => 
+                        n >= gameState.numberRange[0] && n <= gameState.numberRange[1]);
+                    
+                    if (possibleNext.length > 0) {
+                        sequence.push(possibleNext[Math.floor(Math.random() * possibleNext.length)]);
+                    } else {
+                        sequence.push(generateRandomNumber());
+                    }
+                } else {
+                    const current = sequence[sequence.length - 1];
+                    const nBack = sequence[sequence.length - gameState.level - 1];
+                    const previous = sequence[sequence.length - 2];
+                    
+                    const diff = Math.abs(current - nBack);
+                    
+                    let next;
+                    do {
+                        next = generateRandomNumber();
+                    } while (Math.abs(next - previous) === diff);
+                    
+                    sequence.push(next);
+                }
+            }
+            
+            return sequence;
+        }
+
+        function showNextNumber() {
+            if (gameState.isPaused) return;
+            
+            const numberDisplay = document.getElementById('numberDisplay');
+            
+            if (gameState.isQuestionPhase && 
+                gameState.sequenceStep >= (gameState.level + 2) && 
+                !gameState.hasAnswered) {
+                
+                gameState.totalAnswers++;
+                gameState.blockTotalAnswers++;
+                updateDisplay();
+                updateSidebarDisplay();
+            }
+            
+            gameState.hasAnswered = false;
+            
+            if (gameState.sequenceStep < gameState.sequence.length) {
+                numberDisplay.classList.remove('fade-out');
+                numberDisplay.textContent = gameState.sequence[gameState.sequenceStep];
+                
+                gameState.numbersShown = gameState.sequenceStep + 1;
+                updateDisplay();
+                
+                const remainingTime = Math.max(0, gameState.gapDuration - gameState.stimulusDuration);
+                
+                gameState.currentTimeout = setTimeout(() => {
+                    if (!gameState.isPaused) {
+                        numberDisplay.classList.add('fade-out');
+                        
+                        gameState.currentTimeout = setTimeout(() => {
+                            if (!gameState.isPaused) {
+                                gameState.sequenceStep++;
+                                if (gameState.sequenceStep < gameState.sequence.length) {
+                                    showNextNumber();
+                                } else {
+                                    showResults();
+                                }
+                            }
+                        }, remainingTime * 1000);
+                    }
+                }, gameState.stimulusDuration * 1000);
+            }
+        }
+
+        function respond(userAnswer) {
+            if (!gameState.isQuestionPhase || gameState.isPaused || gameState.hasAnswered) return;
+            
+            gameState.hasAnswered = true;
+            
+            const currentIndex = gameState.sequenceStep;
+            const current = gameState.sequence[currentIndex];
+            
+            const nBack = gameState.sequence[currentIndex - gameState.level];
+            const previous = gameState.sequence[currentIndex - 1];
+            const nPlusOneBack = gameState.sequence[currentIndex - gameState.level - 1];
+            
+            const diffA = Math.abs(current - nBack);
+            const diffB = Math.abs(previous - nPlusOneBack);
+            gameState.currentAnswer = diffA === diffB;
+            
+            const isCorrect = userAnswer === gameState.currentAnswer;
+            
+            gameState.totalAnswers++;
+            gameState.blockTotalAnswers++;
+            
+            // Visual feedback on buttons
+            const yesBtn = document.getElementById('yesBtn');
+            const noBtn = document.getElementById('noBtn');
+            
+            yesBtn.classList.remove('feedback-correct');
+            noBtn.classList.remove('feedback-correct');
+            
+            if (gameState.currentAnswer) {
+                yesBtn.classList.add('feedback-correct');
+            } else {
+                noBtn.classList.add('feedback-correct');
+            }
+            
+            // Remove feedback after short delay
+            setTimeout(() => {
+                yesBtn.classList.remove('feedback-correct');
+                noBtn.classList.remove('feedback-correct');
+            }, 500);
+            
+            if (isCorrect) {
+                gameState.correctAnswers++;
+                gameState.blockCorrectAnswers++;
+            }
+            
+            updateDisplay();
+            updateSidebarDisplay();
+        }
+
+        function showResults() {
+            const accuracy = gameState.totalAnswers > 0 ? 
+                Math.round((gameState.correctAnswers / gameState.totalAnswers) * 100) : 0;
+            
+            if (gameState.mode === 'adaptive') {
+                checkAdaptiveDifficulty();
+            }
+            
+            stopTrainingTimer();
+            
+            document.getElementById('numberDisplay').style.display = 'none';
+            document.getElementById('yesBtn').style.display = 'none';
+            document.getElementById('noBtn').style.display = 'none';
+        }
+
+        function endGame() {
+            resetGame();
+        }
+
+        // Initialize when page loads
+        window.addEventListener('load', initGame);
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Don't process if recording a key
+            if (gameState.recordingKey) return;
+            
+            if (e.key === 'Escape') {
+                closeSidebar();
+                return;
+            }
+            
+            if (e.key === 's' && e.ctrlKey) {
+                e.preventDefault();
+                toggleSidebar();
+                return;
+            }
+            
+            // Handle custom hotkeys
+            if (e.code === gameState.hotkeys.start) {
+                e.preventDefault();
+                handleStartKey();
+                return;
+            }
+            
+            if (e.code === gameState.hotkeys.equal) {
+                e.preventDefault();
+                if (gameState.isQuestionPhase && gameState.isPlaying) {
+                    respond(true);
+                }
+                return;
+            }
+            
+            if (e.code === gameState.hotkeys.different) {
+                e.preventDefault();
+                if (gameState.isQuestionPhase && gameState.isPlaying) {
+                    respond(false);
+                }
+                return;
+            }
+            
+            // Cancel auto start on any other key press (when auto start is running)
+            if (gameState.autoStartCountdown && !gameState.isPlaying) {
+                cancelAutoStart();
+            }
+        });
+
+        function handleStartKey() {
+            // If auto start is running, start immediately
+            if (gameState.autoStartCountdown && !gameState.isPlaying) {
+                cancelAutoStart();
+                startSequence();
+                return;
+            }
+            
+            // Normal start key handling
+            if (gameState.isPlaying || gameState.isQuestionPhase) {
+                return;
+            }
+            
+            const startScreen = document.getElementById('startScreen');
+            const gameScreen = document.getElementById('gameScreen');
+            
+            if (startScreen && startScreen.style.display !== 'none') {
+                startGame();
+            } else if (gameScreen && gameScreen.style.display !== 'none' && !gameState.isPlaying) {
+                startSequence();
+            }
+        }
+    </script>
+</body>
+</html>
